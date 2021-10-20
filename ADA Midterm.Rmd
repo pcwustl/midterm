@@ -51,3 +51,13 @@ median_bar <- ggplot(data = brfss_median, aes(x = SEX, y = median, fill = SEX)) 
 median_bar #display graph
 ```
 
+## Determine mean height of males and females
+```{r}
+brfss_mean <- brfss_test %>% #pipe
+  filter(SEX == 1 | SEX == 2) %>% #remove coded 9s
+  group_by(SEX) %>% #group by sex
+  summarise(mean = mean(ht_meters, na.rm = TRUE)) #create mean variable and remove NAs
+
+brfss_mean # show male and female median heights
+```
+
