@@ -1,0 +1,53 @@
+---
+title: "ADA Midterm"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readr)
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+```
+
+## Import dataset
+```{r}
+brfss_test <- read_csv("https://raw.githubusercontent.com/kijohnson/ADA-Fall-2021/master/BRFSS2017_10percent_v.csv") #import from GH
+```
+
+## Determine median heights for males and females
+```{r}
+brfss_median <- brfss_test %>% #pipe
+  filter(SEX == 1 | SEX == 2) %>% #remove coded 9s
+  group_by(SEX) %>% #group by sex
+  summarise(median = median(ht_meters, na.rm = TRUE)) #create median variable and remove NAs
+
+brfss_median # show male and female median heights
+```
+
+## Plot median heights
+```{r}
+# recode each sex to different character class, so can factor
+brfss_median$SEX[brfss_median$SEX == 1] <- "0"
+brfss_median$SEX[brfss_median$SEX == 2] <- "1"
+brfss_median$SEX[brfss_median$SEX == 9] <- "2"
+
+# recode character to factor for SEX for graph
+brfss_median$SEX <- factor(brfss_median$SEX, labels = c("Male", "Female"))
+
+#check that SEX was properly recoded
+class(brfss_median$SEX)
+
+# plot bar graph of SEX and median height
+median_bar <- ggplot(data = brfss_median, aes(x = SEX, y = median, fill = SEX)) + #general attributes of bar plot
+  geom_col() + #used geom_col() because I have defined y 
+  labs(x = "Sex", y = "Median Height (meters)", title = "Difference in Median Height (meters) Among Sex") + # ~ aesthetics ~
+  scale_x_discrete(labels = c("Male", "Female")) +
+  theme(plot.title = element_text(hjust = 0.5), 
+        axis.title.x = element_text(face="bold", size = 12),
+        axis.title.y = element_text(face="bold", size = 12),
+        legend.title = element_text(face="bold", size = 10))
+median_bar #display graph
+```
+
